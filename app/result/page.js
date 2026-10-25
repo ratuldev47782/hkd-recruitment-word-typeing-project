@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 const PREFIX = 'hkd-typing:';
+const PIN = '1234'; // ei PIN ta apnar moto change korun
 
 function loadResults() {
   const out = [];
@@ -16,6 +17,9 @@ function loadResults() {
 
 export default function ResultPage() {
   const router = useRouter();
+  const [unlocked, setUnlocked] = useState(false);
+  const [pin, setPin] = useState('');
+  const [pinErr, setPinErr] = useState(false);
   const [latest, setLatest] = useState(null);
   const [history, setHistory] = useState([]);
   const [ready, setReady] = useState(false);
@@ -28,6 +32,11 @@ export default function ResultPage() {
   }, []);
 
   const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+
+  function submitPin() {
+    if (pin === PIN) { setUnlocked(true); setPinErr(false); }
+    else { setPinErr(true); setPin(''); }
+  }
 
   function remove(id, name) {
     if (!window.confirm(`Delete result for ${name}?`)) return;
@@ -47,20 +56,47 @@ export default function ResultPage() {
     setHistory([]);
   }
 
+  if (!unlocked) {
+    return (
+      <main className="wrap">
+        <header>
+          <img src="/HKD_LOGO.png" alt="HKD" width="56" height="56" />
+          <div>
+            <h1>HKD Outdoor Innovations Ltd.</h1>
+            <p>MIS Department · Examiner access</p>
+          </div>
+        </header>
+        <section className="card">
+          <h2>Enter PIN</h2>
+          <div className="btnrow" style={{ margin: '16px 0' }}>
+            <input
+              type="password" inputMode="numeric" placeholder="PIN" value={pin} autoFocus
+              onChange={(e) => setPin(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') submitPin(); }}
+            />
+            <button className="finish" onClick={submitPin}>Unlock</button>
+          </div>
+          {pinErr && <p className="err" role="alert">Wrong PIN. Try again.</p>}
+          <Link className="navlink" href="/">Back to test</Link>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="wrap">
       <header>
         <img src="/HKD_LOGO.png" alt="HKD" width="56" height="56" />
         <div>
           <h1>HKD Outdoor Innovations Ltd.</h1>
-          <p>MIS Department · Typing test result</p>
+          <p>MIS Department · Saved results</p>
         </div>
       </header>
 
       {!ready ? null : !latest ? (
         <section className="card">
           <h2>No result yet</h2>
-          <p className="hint" style={{ margin: '12px 0 20px' }}>Take the typing test to see your result here.</p>
+          <p className="hint" style={{ margin: '12px 0 20px' }}>Take the typing test to see results here.</p>
           <Link className="finish" href="/">Go to test</Link>
         </section>
       ) : (
