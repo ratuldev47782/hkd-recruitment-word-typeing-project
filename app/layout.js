@@ -17,6 +17,11 @@ const robotoMono = Roboto_Mono({
 
 export const metadata = {
   title: 'HKD Typing Test',
+  icons: {
+    icon: '/HKD_LOGO.png',
+    shortcut: '/HKD_LOGO.png',
+    apple: '/HKD_LOGO.png',
+  },
 };
 
 export default function RootLayout({ children }) {
