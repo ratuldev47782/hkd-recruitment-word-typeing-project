@@ -69,12 +69,15 @@ export default function Home() {
     const secs = start ? Math.max(1, (Date.now() - start) / 1000) : 0;
     const rw = EN.split(/\s+/);
     const correct = ws.filter((w, i) => w === rw[i]).length;
+    const chars = text.length;
     const r = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       name: name.trim(), date: new Date().toISOString(),
       words: ws.length, correct, secs: Math.round(secs),
       wpm: secs ? Math.round(ws.length / (secs / 60)) : 0,
       acc: ws.length ? Math.round((correct / ws.length) * 100) : 0,
+      wrongChars: wrong, missedSpaces: missedSpace,
+      charAcc: chars ? Math.max(0, Math.round(((chars - wrong) / chars) * 100)) : 0,
     };
     try { localStorage.setItem(PREFIX + r.id, JSON.stringify(r)); } catch {}
     reset();
@@ -83,6 +86,21 @@ export default function Home() {
 
   const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
   const elapsed = start ? Math.floor((now - start) / 1000) : 0;
+
+  // per-character check
+  const refChars = EN.split('');
+  let wrong = 0, missedSpace = 0;
+  const view = refChars.map((ch, i) => {
+    let cls = 'pending', label = ch;
+    if (i < text.length) {
+      if (text[i] === ch) cls = 'ok';
+      else if (ch === ' ') { cls = 'bad'; label = '\u2423'; missedSpace++; wrong++; }
+      else { cls = 'bad'; wrong++; }
+    } else if (i === text.length) cls = 'cursor';
+    return <span key={i} className={cls}>{label}</span>;
+  });
+  const extra = text.length > EN.length ? text.slice(EN.length) : '';
+  if (extra) wrong += extra.length;
 
   return (
     <main className="wrap">
@@ -102,7 +120,15 @@ export default function Home() {
       {err && <p className="err" role="alert">{err}</p>}
       {done && <p className="ok" role="status">Test submitted. Thank you! The next examinee may begin.</p>}
 
-      <section className="ref">{EN}</section>
+      <section className="ref">
+        {view}
+        {extra && <span className="bad">{extra}</span>}
+      </section>
+      {start && (
+        <p className="live">
+          Wrong characters: <b>{wrong}</b> · Missed spaces: <b>{missedSpace}</b>
+        </p>
+      )}
 
       <textarea
         ref={ta} value={text} spellCheck={false}

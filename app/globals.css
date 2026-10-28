@@ -47,3 +47,14 @@ dt{color:#5a6b7a}dd{margin:0;font-weight:600}
 table{width:100%;border-collapse:collapse;background:#fff}
 th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
 th{background:#e6eef5;color:var(--deep)}
+
+/* live per-character typing feedback */
+.ref{white-space:pre-wrap;line-height:1.8}
+.ref .pending{color:#888}
+.ref .ok{color:#1a8f3c}
+.ref .bad{color:#fff;background:#d93025;border-radius:2px}
+.ref .cursor{background:#ffe58a;border-bottom:2px solid #000}
+.live{font-size:14px;margin:6px 0}
+.live b{color:#d93025}
+.ok{color:#1a8f3c}
+.ref .ok{color:#1a8f3c}
